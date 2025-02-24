@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apocalyptic Skibidi Clicker</title>
+    <title>Skibidi Clicker</title>
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -160,6 +160,7 @@
         let score = 0;
         let multiplier = 1;
         let totalClicks = 0;
+        let purchasedUpgrades = [];
         const scoreElement = document.getElementById('score');
         const multiplierElement = document.querySelector('.multiplier');
         const totalClicksElement = document.querySelector('.total-clicks');
@@ -199,11 +200,13 @@
         ];
 
         function createUpgradeButtons() {
-            // Sort upgrades by cost
-            const sortedUpgrades = [...upgrades].sort((a, b) => a.cost - b.cost);
+            // Filter out purchased upgrades and sort by cost
+            const availableUpgrades = upgrades
+                .filter(upgrade => !purchasedUpgrades.includes(upgrade.id))
+                .sort((a, b) => a.cost - b.cost);
 
             upgradeContainer.innerHTML = '';
-            sortedUpgrades.forEach(upgrade => {
+            availableUpgrades.forEach(upgrade => {
                 const button = document.createElement('button');
                 button.className = 'upgrade-btn';
                 button.id = upgrade.id;
@@ -217,7 +220,9 @@
             if (score >= upgrade.cost) {
                 score -= upgrade.cost;
                 multiplier = upgrade.multiplier;
+                purchasedUpgrades.push(upgrade.id);
                 updateDisplay();
+                createUpgradeButtons(); // Recreate buttons to remove the purchased upgrade
             }
         }
 
@@ -228,7 +233,9 @@
                 score = data.score || 0;
                 multiplier = data.multiplier || 1;
                 totalClicks = data.totalClicks || 0;
+                purchasedUpgrades = data.purchasedUpgrades || [];
                 updateDisplay();
+                createUpgradeButtons(); // Recreate buttons based on loaded data
             }
         }
 
@@ -236,7 +243,8 @@
             const gameData = {
                 score: score,
                 multiplier: multiplier,
-                totalClicks: totalClicks
+                totalClicks: totalClicks,
+                purchasedUpgrades: purchasedUpgrades
             };
             localStorage.setItem('skibidiClickerSave', JSON.stringify(gameData));
             alert('Game Saved!');
@@ -248,7 +256,9 @@
                 score = 0;
                 multiplier = 1;
                 totalClicks = 0;
+                purchasedUpgrades = [];
                 updateDisplay();
+                createUpgradeButtons(); // Recreate all upgrade buttons
             }
         }
 
@@ -266,8 +276,9 @@
         }
 
         function updateUpgradeButtons() {
-            upgrades.forEach(upgrade => {
-                const button = document.getElementById(upgrade.id);
+            const buttons = upgradeContainer.getElementsByClassName('upgrade-btn');
+            Array.from(buttons).forEach(button => {
+                const upgrade = upgrades.find(u => u.id === button.id);
                 button.disabled = score < upgrade.cost;
             });
         }
@@ -281,8 +292,8 @@
 
         setInterval(saveGame, 60000);
 
-        createUpgradeButtons();
         loadGame();
+        createUpgradeButtons();
         updateDisplay();
 
         window.addEventListener('beforeunload', saveGame);
