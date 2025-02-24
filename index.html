@@ -199,8 +199,11 @@
         ];
 
         function createUpgradeButtons() {
+            // Sort upgrades by cost
+            const sortedUpgrades = [...upgrades].sort((a, b) => a.cost - b.cost);
+
             upgradeContainer.innerHTML = '';
-            upgrades.forEach(upgrade => {
+            sortedUpgrades.forEach(upgrade => {
                 const button = document.createElement('button');
                 button.className = 'upgrade-btn';
                 button.id = upgrade.id;
