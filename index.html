@@ -147,18 +147,7 @@
         </div>
         <div class="store">
             <h2>UPGRADES</h2>
-            <button class="upgrade-btn" id="upgrade1" data-cost="50" data-multiplier="2">
-                Basic Upgrade (x2) - 50 points
-            </button>
-            <button class="upgrade-btn" id="upgrade2" data-cost="200" data-multiplier="5">
-                Advanced Upgrade (x5) - 200 points
-            </button>
-            <button class="upgrade-btn" id="upgrade3" data-cost="1000" data-multiplier="10">
-                Super Upgrade (x10) - 1000 points
-            </button>
-            <button class="upgrade-btn" id="upgrade4" data-cost="5000" data-multiplier="50">
-                MEGA Upgrade (x50) - 5000 points
-            </button>
+            <div id="upgradeContainer"></div>
         </div>
     </div>
 
@@ -170,9 +159,39 @@
         const multiplierElement = document.querySelector('.multiplier');
         const totalClicksElement = document.querySelector('.total-clicks');
         const clickButton = document.getElementById('clickButton');
-        const upgrades = document.querySelectorAll('.upgrade-btn');
+        const upgradeContainer = document.getElementById('upgradeContainer');
         const saveButton = document.getElementById('saveButton');
         const resetButton = document.getElementById('resetButton');
+
+        // Define upgrades
+        const upgrades = [
+            { id: 'upgrade1', name: 'Basic Upgrade', cost: 50, multiplier: 2 },
+            { id: 'upgrade2', name: 'Advanced Upgrade', cost: 200, multiplier: 5 },
+            { id: 'upgrade3', name: 'Super Upgrade', cost: 1000, multiplier: 10 },
+            { id: 'upgrade4', name: 'MEGA Upgrade', cost: 5000, multiplier: 50 },
+            // Add new upgrades here
+            { id: 'upgrade5', name: 'ULTRA Upgrade', cost: 20000, multiplier: 200 },
+        ];
+
+        function createUpgradeButtons() {
+            upgradeContainer.innerHTML = '';
+            upgrades.forEach(upgrade => {
+                const button = document.createElement('button');
+                button.className = 'upgrade-btn';
+                button.id = upgrade.id;
+                button.innerHTML = `${upgrade.name} (x${upgrade.multiplier}) - ${upgrade.cost} points`;
+                button.addEventListener('click', () => buyUpgrade(upgrade));
+                upgradeContainer.appendChild(button);
+            });
+        }
+
+        function buyUpgrade(upgrade) {
+            if (score >= upgrade.cost) {
+                score -= upgrade.cost;
+                multiplier = upgrade.multiplier;
+                updateDisplay();
+            }
+        }
 
         function loadGame() {
             const savedData = localStorage.getItem('skibidiClickerSave');
@@ -220,8 +239,8 @@
 
         function updateUpgradeButtons() {
             upgrades.forEach(upgrade => {
-                const cost = parseInt(upgrade.dataset.cost);
-                upgrade.disabled = score < cost;
+                const button = document.getElementById(upgrade.id);
+                button.disabled = score < upgrade.cost;
             });
         }
 
@@ -229,24 +248,12 @@
             updateScore(multiplier);
         });
 
-        upgrades.forEach(upgrade => {
-            upgrade.addEventListener('click', () => {
-                const cost = parseInt(upgrade.dataset.cost);
-                const newMultiplier = parseInt(upgrade.dataset.multiplier);
-                
-                if (score >= cost) {
-                    score -= cost;
-                    multiplier = newMultiplier;
-                    updateDisplay();
-                }
-            });
-        });
-
         saveButton.addEventListener('click', saveGame);
         resetButton.addEventListener('click', resetGame);
 
         setInterval(saveGame, 60000);
 
+        createUpgradeButtons();
         loadGame();
         updateDisplay();
 
