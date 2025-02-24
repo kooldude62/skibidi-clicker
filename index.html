@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apocalyptic Skibidi Clicker</title>
+    <title>Skibidi Clicker update 3.4</title>
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -59,6 +59,7 @@
             border: none;
             cursor: pointer;
             transition: transform 0.1s;
+            position: relative;
         }
 
         #clickButton:active {
@@ -69,7 +70,25 @@
             width: 200px;
             height: auto;
             border-radius: 50%;
-            box-shadow: 0 0 20px rgba(255, 145, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        #clickButton::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,145,0,0.5) 0%, rgba(255,145,0,0) 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        #clickButton:hover::after {
+            opacity: 1;
         }
 
         .upgrade-btn {
@@ -195,34 +214,12 @@
         const resetButton = document.getElementById('resetButton');
 
         // Define upgrades
-        const upgrades = [
-            { id: 'upgrade1', name: 'Basic Upgrade', cost: 50, multiplier: 2 },
-            { id: 'upgrade2', name: 'Advanced Upgrade', cost: 200, multiplier: 5 },
-            { id: 'upgrade3', name: 'Super Upgrade', cost: 1000, multiplier: 10 },
-            { id: 'upgrade4', name: 'MEGA Upgrade', cost: 5000, multiplier: 50 },
-            { id: 'upgrade5', name: 'ULTRA Upgrade', cost: 20000, multiplier: 200 },
-            // New Skibidi Toilet themed upgrades
-            { id: 'skibidi1', name: 'Skibidi Flush', cost: 100, multiplier: 3 },
-            { id: 'skibidi2', name: 'Camera Head Power', cost: 500, multiplier: 7 },
-            { id: 'skibidi3', name: 'Titan Toilet Strength', cost: 2000, multiplier: 15 },
-            { id: 'skibidi4', name: 'Speaker Man Amplifier', cost: 7500, multiplier: 40 },
-            { id: 'skibidi5', name: 'Skibidi Army', cost: 25000, multiplier: 100 },
-            { id: 'skibidi6', name: 'Toilet Dimension Portal', cost: 50000, multiplier: 250 },
-            { id: 'skibidi7', name: 'Skibidi Virus Spread', cost: 100000, multiplier: 500 },
-            { id: 'skibidi8', name: 'Plunger of Doom', cost: 250000, multiplier: 1000 },
-            { id: 'skibidi9', name: 'Skibidi Dance Move', cost: 500000, multiplier: 2500 },
-            { id: 'skibidi10', name: 'Toilet Paper Time Warp', cost: 1000000, multiplier: 5000 },
-            { id: 'skibidi11', name: 'Skibidi Multiverse', cost: 2500000, multiplier: 10000 },
-            { id: 'skibidi12', name: 'Sentient Sewage System', cost: 5000000, multiplier: 25000 },
-            { id: 'skibidi13', name: 'Skibidi Singularity', cost: 10000000, multiplier: 50000 },
-            { id: 'skibidi14', name: 'Toilet Titan Transformation', cost: 25000000, multiplier: 100000 },
-            { id: 'skibidi15', name: 'Interdimensional Plumbing', cost: 50000000, multiplier: 250000 },
-            { id: 'skibidi16', name: 'Skibidi Reality Warper', cost: 100000000, multiplier: 500000 },
-            { id: 'skibidi17', name: 'Cosmic Commode', cost: 250000000, multiplier: 1000000 },
-            { id: 'skibidi18', name: 'Omnipotent Overflow', cost: 500000000, multiplier: 2500000 },
-            { id: 'skibidi19', name: 'Skibidi Godhood', cost: 1000000000, multiplier: 5000000 },
-            { id: 'skibidi20', name: 'Ultimate Skibidi Ascension', cost: 10000000000, multiplier: 10000000 },
-        ];
+        const upgrades = Array.from({ length: 100 }, (_, i) => ({
+            id: `upgrade${i + 1}`,
+            name: `Skibidi Upgrade ${i + 1}`,
+            cost: Math.floor(50 * Math.pow(1.15, i)),
+            multiplier: Math.floor(2 * Math.pow(1.15, i))
+        }));
 
         function createUpgradeButtons() {
             // Filter out purchased upgrades and sort by cost
@@ -315,6 +312,30 @@
 
         saveButton.addEventListener('click', saveGame);
         resetButton.addEventListener('click', resetGame);
+
+        // Skibidi rocking animation
+        let angle = 0;
+        let rocking = false;
+        const skibidiImage = clickButton.querySelector('img');
+
+        clickButton.addEventListener('mouseenter', () => {
+            rocking = true;
+            rockSkibidi();
+        });
+
+        clickButton.addEventListener('mouseleave', () => {
+            rocking = false;
+            skibidiImage.style.transform = 'rotate(0deg)';
+        });
+
+        function rockSkibidi() {
+            if (rocking) {
+                angle += 0.1;
+                const rotation = Math.sin(angle) * 5; // 5 degrees max rotation
+                skibidiImage.style.transform = `rotate(${rotation}deg)`;
+                requestAnimationFrame(rockSkibidi);
+            }
+        }
 
         setInterval(saveGame, 60000);
 
