@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apocalyptic Skibidi Clicker</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+            background-color: #1a1a1a;
+            color: #ff9100;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .container {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            min-width: 300px;
+        }
+
+        .store, .stats {
+            background: rgba(255, 145, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            box-shadow: 0 0 15px rgba(255, 145, 0, 0.3);
+        }
+
+        #score {
+            font-size: 32px;
+            font-weight: bold;
+            background: rgba(255, 145, 0, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        #clickButton {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        #clickButton:active {
+            transform: scale(0.95);
+        }
+
+        #clickButton img {
+            width: 200px;
+            height: auto;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 145, 0, 0.5);
+        }
+
+        .upgrade-btn {
+            background: rgba(255, 145, 0, 0.2);
+            border: 2px solid #ff9100;
+            color: #ff9100;
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .upgrade-btn:hover {
+            background: rgba(255, 145, 0, 0.3);
+        }
+
+        .upgrade-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .multiplier {
+            font-size: 24px;
+            margin-bottom: 20px;
+            background: rgba(255, 145, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #ff9100;
+            padding-bottom: 10px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            background: rgba(255, 145, 0, 0.2);
+            border: 2px solid #ff9100;
+            color: #ff9100;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 145, 0, 0.3);
+        }
+
+        .total-clicks {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-area">
+            <div id="score">Score: 0</div>
+            <div class="multiplier">Multiplier: x1</div>
+            <button id="clickButton">
+                <img src="https://skibiditoilet.shop/cdn/shop/files/DSC9377.png?v=1727907940&width=2000" alt="Skibidi Toilet">
+            </button>
+            <div class="stats">
+                <h2>STATISTICS</h2>
+                <div class="total-clicks">Total Clicks: 0</div>
+                <div class="control-buttons">
+                    <button class="control-btn" id="saveButton">Save Game</button>
+                    <button class="control-btn" id="resetButton">Reset Game</button>
+                </div>
+            </div>
+        </div>
+        <div class="store">
+            <h2>UPGRADES</h2>
+            <button class="upgrade-btn" id="upgrade1" data-cost="50" data-multiplier="2">
+                Basic Upgrade (x2) - 50 points
+            </button>
+            <button class="upgrade-btn" id="upgrade2" data-cost="200" data-multiplier="5">
+                Advanced Upgrade (x5) - 200 points
+            </button>
+            <button class="upgrade-btn" id="upgrade3" data-cost="1000" data-multiplier="10">
+                Super Upgrade (x10) - 1000 points
+            </button>
+            <button class="upgrade-btn" id="upgrade4" data-cost="5000" data-multiplier="50">
+                MEGA Upgrade (x50) - 5000 points
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let multiplier = 1;
+        let totalClicks = 0;
+        const scoreElement = document.getElementById('score');
+        const multiplierElement = document.querySelector('.multiplier');
+        const totalClicksElement = document.querySelector('.total-clicks');
+        const clickButton = document.getElementById('clickButton');
+        const upgrades = document.querySelectorAll('.upgrade-btn');
+        const saveButton = document.getElementById('saveButton');
+        const resetButton = document.getElementById('resetButton');
+
+        function loadGame() {
+            const savedData = localStorage.getItem('skibidiClickerSave');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                score = data.score || 0;
+                multiplier = data.multiplier || 1;
+                totalClicks = data.totalClicks || 0;
+                updateDisplay();
+            }
+        }
+
+        function saveGame() {
+            const gameData = {
+                score: score,
+                multiplier: multiplier,
+                totalClicks: totalClicks
+            };
+            localStorage.setItem('skibidiClickerSave', JSON.stringify(gameData));
+            alert('Game Saved!');
+        }
+
+        function resetGame() {
+            if (confirm('Are you sure you want to reset? This will delete all progress!')) {
+                localStorage.removeItem('skibidiClickerSave');
+                score = 0;
+                multiplier = 1;
+                totalClicks = 0;
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            scoreElement.textContent = `Score: ${score}`;
+            multiplierElement.textContent = `Multiplier: x${multiplier}`;
+            totalClicksElement.textContent = `Total Clicks: ${totalClicks}`;
+            updateUpgradeButtons();
+        }
+
+        function updateScore(amount) {
+            score += amount;
+            totalClicks++;
+            updateDisplay();
+        }
+
+        function updateUpgradeButtons() {
+            upgrades.forEach(upgrade => {
+                const cost = parseInt(upgrade.dataset.cost);
+                upgrade.disabled = score < cost;
+            });
+        }
+
+        clickButton.addEventListener('click', () => {
+            updateScore(multiplier);
+        });
+
+        upgrades.forEach(upgrade => {
+            upgrade.addEventListener('click', () => {
+                const cost = parseInt(upgrade.dataset.cost);
+                const newMultiplier = parseInt(upgrade.dataset.multiplier);
+                
+                if (score >= cost) {
+                    score -= cost;
+                    multiplier = newMultiplier;
+                    updateDisplay();
+                }
+            });
+        });
+
+        saveButton.addEventListener('click', saveGame);
+        resetButton.addEventListener('click', resetGame);
+
+        setInterval(saveGame, 60000);
+
+        loadGame();
+        updateDisplay();
+
+        window.addEventListener('beforeunload', saveGame);
+    </script>
+</body>
+</html>
