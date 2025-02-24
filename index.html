@@ -214,7 +214,7 @@
         const resetButton = document.getElementById('resetButton');
 
         // Define upgrades
-        const upgrades = Array.from({ length: 1000 }, (_, i) => ({
+        const upgrades = Array.from({ length: 1000000 }, (_, i) => ({
             id: `upgrade${i + 1}`,
             name: `Skibidi Upgrade ${i + 1}`,
             cost: Math.floor(50 * Math.pow(1.15, i)),
