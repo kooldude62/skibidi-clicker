@@ -242,7 +242,7 @@
         function buyUpgrade(upgrade) {
             if (score >= upgrade.cost) {
                 score -= upgrade.cost;
-                multiplier = multiplyer + upgrade.multiplier;
+                multiplier = upgrade.multiplier;
                 purchasedUpgrades.push(upgrade.id);
                 updateDisplay();
                 createUpgradeButtons(); // Recreate buttons to remove the purchased upgrade
